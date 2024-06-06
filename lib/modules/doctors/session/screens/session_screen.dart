@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:lottie/lottie.dart';
 import 'package:medical_assistant/modules/doctors/session/screens/sessionresults_screen.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -14,6 +15,7 @@ class SessionScreen extends StatefulWidget {
 
 class _SessionScreenState extends State<SessionScreen> {
   final SpeechToText _speechToText = SpeechToText();
+  Gemini gemini = Gemini.instance;
 
   bool _isMicOn = false;
   String _lastWords = '';
@@ -75,6 +77,11 @@ class _SessionScreenState extends State<SessionScreen> {
                               foregroundColor: Colors.white),
                           onPressed: () {
                             _stopListening();
+                            gemini
+                                .text(
+                                    "Give me some illness and tablet names in json format")
+                                .then((value) => print(value?.output))
+                                .catchError((e) => print(e));
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
