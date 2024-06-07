@@ -2,9 +2,10 @@
 import 'dart:convert';
 
 class Medication {
-  final String mId;
+  // final String mId;
   final String mName;
   final List<bool> mTime;
+  final String mInstructions;
 
   Medication({required this.mId, required this.mName, required this.mTime});
 
@@ -27,4 +28,5 @@ class Medication {
   String toJson() => json.encode(toMap());
 
   factory Medication.fromJson(String source) => Medication.fromMap(json.decode(source) as Map<String, dynamic>);
+
 }

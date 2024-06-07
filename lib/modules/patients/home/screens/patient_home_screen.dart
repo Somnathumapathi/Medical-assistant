@@ -1,6 +1,8 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:medical_assistant/modules/patients/home/screens/patient_monitoring_screen.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patient_profile_screen.dart';
+import 'package:medical_assistant/modules/patients/home/screens/patiet_reports_screen.dart';
 
 class PatientHomeScreen extends StatefulWidget {
   const PatientHomeScreen({super.key});
@@ -15,9 +17,13 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     if (_screenIdx == 0) {
       return const PatientProfileScreen();
     } else if (_screenIdx == 1) {
-      return Center(
+      return const Center(
         child: Text('Home'),
       );
+    } else if (_screenIdx == 2) {
+      return const PatientMonitoringScreen();
+    } else if (_screenIdx == 3) {
+      return const PatientReportsScreen();
     }
   }
 
@@ -28,14 +34,14 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Medical Assistant',
           style: TextStyle(color: Colors.white),
         ),
         actions: [
           IconButton(
               onPressed: () {},
-              icon: Icon(
+              icon: const Icon(
                 Icons.notifications,
                 color: Colors.white,
               ))
@@ -45,13 +51,17 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
       ),
       body: getBody(_scWidth, _scHeight),
       bottomNavigationBar: CurvedNavigationBar(
-        items: [
+        items: const [
           Icon(
             Icons.person,
             color: Colors.orangeAccent,
           ),
           Icon(
             Icons.home,
+            color: Colors.orangeAccent,
+          ),
+          Icon(
+            Icons.remove_red_eye,
             color: Colors.orangeAccent,
           ),
           Icon(

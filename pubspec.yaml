@@ -47,7 +47,12 @@ dependencies:
   riverpod: ^2.5.1
   curved_navigation_bar: ^1.0.4
   flutter_riverpod: ^2.5.1
+
   shared_preferences: ^2.2.3
+
+  camera: ^0.10.5+9
+  tflite: ^1.1.2
+
 
 dev_dependencies:
   flutter_test:
