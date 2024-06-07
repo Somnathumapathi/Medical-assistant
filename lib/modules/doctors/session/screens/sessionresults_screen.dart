@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:medical_assistant/models/medication.dart';
+import 'package:medical_assistant/models/report.dart';
 
 class SessionResultScreen extends StatefulWidget {
-  const SessionResultScreen({super.key, required this.speechResult});
-  final String speechResult;
+  const SessionResultScreen({super.key, required this.report});
+  final Report report;
   @override
   State<SessionResultScreen> createState() => _SessionResultScreenState();
 }
@@ -11,9 +13,35 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
   late TextEditingController _resultController;
   final _durationController = TextEditingController();
   final _patientNameController = TextEditingController();
+  String? result;
+
+  void _generateResultText() {
+    final medicalDiagnosis = widget.report.medicalDiagnosis ?? 'N/A';
+    final description = widget.report.description ?? 'No description available';
+    final medications = widget.report.medications?.map((medication) {
+          return '''
+Name: ${medication.mName}
+Times: ${medication.mTime.map((time) => time ? 'Yes' : 'No').join(', ')}
+Duration: ${medication.mDuration}
+Instructions: ${medication.mInstructions}
+      ''';
+        }).join('\n\n') ??
+        'No medications available';
+
+    result = '''
+Medical Diagnosis: $medicalDiagnosis
+
+Description: $description
+
+Medications:
+$medications
+    ''';
+  }
+
   @override
   void initState() {
-    _resultController = TextEditingController(text: widget.speechResult);
+    _generateResultText();
+    _resultController = TextEditingController(text: result);
     super.initState();
   }
 
@@ -43,13 +71,11 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
             SizedBox(
               height: 15,
             ),
+            Text("Enter patient name:"),
             TextFormField(
-              controller: _durationController,
-              keyboardType: TextInputType.numberWithOptions(),
-            ),
-            TextFormField(
+              decoration: InputDecoration(hintText: "Enter Patient Name"),
               controller: _patientNameController,
-              keyboardType: TextInputType.numberWithOptions(),
+              //keyboardType: TextInputType.numberWithOptions(),
             ),
             ElevatedButton.icon(
               onPressed: () {},

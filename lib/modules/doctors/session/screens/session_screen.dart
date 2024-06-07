@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
@@ -7,6 +9,8 @@ import 'package:medical_assistant/commons/utils.dart';
 import 'package:medical_assistant/modules/doctors/session/screens/sessionresults_screen.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import '../../../../models/report.dart';
 
 class SessionScreen extends StatefulWidget {
   const SessionScreen({super.key});
@@ -19,6 +23,7 @@ class _SessionScreenState extends State<SessionScreen> {
   final SpeechToText _speechToText = SpeechToText();
   Gemini gemini = Gemini.instance;
   bool _isLoading = false;
+  Report? report;
 
   bool _isMicOn = false;
   String _lastWords = '';
@@ -89,23 +94,53 @@ class _SessionScreenState extends State<SessionScreen> {
                                   setState(() {
                                     _isLoading = true;
                                   });
-                                  await gemini
-                                      .text(
-                                          "You have fever, so take paracetamol for 3 days in morning and night" +
-                                              PROMPT)
-                                      .then((value) {
-                                    print(value);
-                                    res = value?.content.toString() ??
-                                        'no result';
-                                  }).catchError((e) {
+                                  try {
+                                    final response = await gemini.text(
+                                      "You have fever, so take paracetamol for 3 days in morning and night" +
+                                          PROMPT,
+                                    );
+
+                                    if (response != null &&
+                                        response.content != null) {
+                                      String content =
+                                          response.content.toString();
+
+                                      // Sanitize the input JSON string
+                                      if (content.startsWith(
+                                          'Content(parts: [Parts(text:')) {
+                                        final startIndex = content.indexOf('{');
+                                        final endIndex =
+                                            content.lastIndexOf('}');
+                                        if (startIndex != -1 &&
+                                            endIndex != -1) {
+                                          content = content.substring(
+                                              startIndex, endIndex + 1);
+                                        }
+                                      }
+
+                                      final jsonResponse = json.decode(content);
+                                      report = Report.fromMap(jsonResponse);
+
+                                      print(report?.description);
+                                      // Do something with the report, e.g., save it, display it, etc.
+                                    } else {
+                                      print('No result from API');
+                                      showSnackBar(
+                                          context, 'No result from API');
+                                    }
+                                  } catch (e) {
+                                    print(e);
                                     showSnackBar(context, e.toString());
-                                  });
+                                  }
                                   Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: ((context) =>
-                                              SessionResultScreen(
-                                                  speechResult: res))));
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: ((context) =>
+                                          SessionResultScreen(
+                                            report: report ?? Report(),
+                                          )),
+                                    ),
+                                  );
                                 },
                                 icon: Icon(Icons.stop),
                                 label: Text('Generate')),
