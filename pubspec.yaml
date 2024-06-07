@@ -36,6 +36,11 @@ dependencies:
   cloud_firestore: ^4.15.8
   firebase_storage: ^11.6.9
   
+ffpns:
+    git:
+      url: https://github.com/synapsecode/ffpns.git
+  shared_preferences:
+  http:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

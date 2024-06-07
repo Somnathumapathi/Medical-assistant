@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:medical_assistant/modules/doctors/session/screens/session_screen.dart';
 
@@ -16,15 +17,31 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.indigo,
+        appBar: AppBar(
+          title: Text(
+            'Medical Assistant',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+        ),
         body: Center(
-            child: ElevatedButton(
-                onPressed: () async {
-                  await firebaseAuth.signOut();
-                  Navigator.popUntil(context, (route) => false);
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()));
-                },
-                child: Text('Log out'))),
+            child: Column(
+          children: [
+            // CarouselSlider(items: [
+            //   Image.network("")
+            // ], options: options)
+          ],
+        )
+            // ElevatedButton(
+            //     onPressed: () async {
+            //       await firebaseAuth.signOut();
+            //       Navigator.popUntil(context, (route) => false);
+            //       Navigator.push(context,
+            //           MaterialPageRoute(builder: (context) => LoginScreen()));
+            //     },
+            //     child: Text('Log out')),
+            ),
         // bottomNavigationBar: ,
         floatingActionButton: FloatingActionButton(onPressed: () {
           Navigator.push(context,
