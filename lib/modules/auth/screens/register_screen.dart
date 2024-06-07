@@ -20,6 +20,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _otpController = TextEditingController();
   final _nameController = TextEditingController();
   final _caretakerController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   // final String phone = '';
   String? _verificationCode;
   bool _isPatient = true;
@@ -32,57 +34,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _otpController.dispose();
     _nameController.dispose();
     _caretakerController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
   }
-  
+
   @override
   void initState() {
     super.initState();
     // _verifyPhone();
   }
 
-  _verifyPhone() async {
-    try{
-      debugPrint("reached in verifyphone");
-        await firebaseAuth.verifyPhoneNumber(
-      phoneNumber: '+91${_phoneController.text}',
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await firebaseAuth.signInWithCredential(credential).then((value) async {
-          if (value.user != null) {
-            
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
-                (route) => false);
-          }
-        });
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        print(e.message);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message!)));
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() {
-          _verificationCode = verificationId;
-        });
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        setState(() {
-          _verificationCode = verificationId;
-        });
-      },
-      timeout: Duration(seconds: 120),
-    );
+  void signup(
+      {required String email,
+      required String password,
+      required String name,
+      required String caretakerNumber}) async {
+    try {
+      final UserCredential userCred = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      final uid = userCred.user!.uid;
+    } catch (e) {
+      print(e);
     }
-    catch(e){
+  }
+
+  _verifyPhone() async {
+    try {
+      debugPrint("reached in verifyphone");
+      await firebaseAuth.verifyPhoneNumber(
+        phoneNumber: '+91${_phoneController.text}',
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await firebaseAuth
+              .signInWithCredential(credential)
+              .then((value) async {
+            if (value.user != null) {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
+                  (route) => false);
+            }
+          });
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          print(e.message);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(e.message!)));
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            _verificationCode = verificationId;
+          });
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          setState(() {
+            _verificationCode = verificationId;
+          });
+        },
+        timeout: Duration(seconds: 120),
+      );
+    } catch (e) {
       debugPrint("inside verify phone catch");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    }    
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
   //  Future<void> signUpWithMobileAndPassword() async {
   //   // String phoneNumber = "+${selectedCountry.phoneCode}${mobilenosignup.text}";
   //   TextEditingController otpcontroller = TextEditingController();
-    
+
   //     try {
   //       await FirebaseAuth.instance.verifyPhoneNumber(
   //         phoneNumber: _phoneController.text,
@@ -107,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   //                 verificationId: verificationId,
   //                 smsCode: otpcontroller.text.trim(),
   //               );
-                
+
   //               });
   //             },
   //           );
@@ -137,7 +158,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   //     }
   // }
 
-
   Future<void> _verifyOtp(String pin) async {
     try {
       debugPrint("reached1");
@@ -145,62 +165,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // final cred = await firebaseAuth
       //     .signInWithCredential(PhoneAuthProvider.credential(
       //         verificationId: _verificationCode!, smsCode: pin, )
-              PhoneAuthCredential credential = PhoneAuthProvider.credential(
-                  verificationId: _verificationCode!,
-                  smsCode: pin,
-                );
-                debugPrint("ahsd");
-                await firebaseAuth
-                    .signInWithCredential(credential)
-                    .then((userCredential) async {
-                  String uid = userCredential.user!.uid;
-                  // debugPrint("ahsd");
-                  // if (value.user != null) {
-          debugPrint("reached2");
-          final prefs = await SharedPreferences.getInstance();
-
-            await prefs.setString('phNumber', '${_phoneController.text}');
-            await prefs.setString('x-id', uid);
-            final firestore = FirebaseFirestore.instance;
-            final _patient = Patient(pId: '', pName: _nameController.text, reports: [], breakfastTime: '', lunchTime: '', dinnerTime: '', language: '', careTakerNo: _caretakerController.text, pNo: _phoneController.text);
-            final _doctor = Doctor(dname: _nameController.text, dId: '', dNumber: _phoneController.text);
-            print('reeeee');
-            final ref = await firestore.collection(_isPatient?'Patient':"Doctor").add(_isPatient?_patient.toMap():_doctor.toMap());
-
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
-              (route) => false);
-        }
-                  // }
-          // .then((value) async {
-      //   if (value.user != null) {
-      //     debugPrint("reached2");
-      //     final prefs = await SharedPreferences.getInstance();
-
-      //       await prefs.setString('phNumber', '${_phoneController.text}');
-      //       await prefs.setString('x-id', value.user!.uid);
-      //       final firestore = FirebaseFirestore.instance;
-      //       final _patient = Patient(pId: '', pName: _nameController.text, reports: [], breakfastTime: '', lunchTime: '', dinnerTime: '', language: '', careTakerNo: _caretakerController.text, pNo: _phoneController.text);
-      //       final _doctor = Doctor(dname: _nameController.text, dId: '', dNumber: _phoneController.text);
-      //       print('reeeee');
-      //       final ref = await firestore.collection(_isPatient?'Patient':"Doctor").add(_isPatient?_patient.toMap():_doctor.toMap());
-
-      //     Navigator.pushAndRemoveUntil(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
-      //         (route) => false);
-      //   }
-      // }
-      
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationCode!,
+        smsCode: pin,
       );
-      
+      debugPrint("ahsd");
+      await firebaseAuth.signInWithCredential(credential).then(
+          (userCredential) async {
+        String uid = userCredential.user!.uid;
+        // debugPrint("ahsd");
+        // if (value.user != null) {
+        debugPrint("reached2");
+        final prefs = await SharedPreferences.getInstance();
+
+        await prefs.setString('phNumber', '${_phoneController.text}');
+        await prefs.setString('x-id', uid);
+        final firestore = FirebaseFirestore.instance;
+        final _patient = Patient(
+            pId: '',
+            pName: _nameController.text,
+            reports: [],
+            breakfastTime: '',
+            lunchTime: '',
+            dinnerTime: '',
+            language: '',
+            careTakerNo: _caretakerController.text,
+            pNo: _phoneController.text);
+        final _doctor = Doctor(
+            dname: _nameController.text,
+            dId: '',
+            dNumber: _phoneController.text);
+        print('reeeee');
+        final ref = await firestore
+            .collection(_isPatient ? 'Patient' : "Doctor")
+            .add(_isPatient ? _patient.toMap() : _doctor.toMap());
+
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
+            (route) => false);
+      }
+          // }
+          // .then((value) async {
+          //   if (value.user != null) {
+          //     debugPrint("reached2");
+          //     final prefs = await SharedPreferences.getInstance();
+
+          //       await prefs.setString('phNumber', '${_phoneController.text}');
+          //       await prefs.setString('x-id', value.user!.uid);
+          //       final firestore = FirebaseFirestore.instance;
+          //       final _patient = Patient(pId: '', pName: _nameController.text, reports: [], breakfastTime: '', lunchTime: '', dinnerTime: '', language: '', careTakerNo: _caretakerController.text, pNo: _phoneController.text);
+          //       final _doctor = Doctor(dname: _nameController.text, dId: '', dNumber: _phoneController.text);
+          //       print('reeeee');
+          //       final ref = await firestore.collection(_isPatient?'Patient':"Doctor").add(_isPatient?_patient.toMap():_doctor.toMap());
+
+          //     Navigator.pushAndRemoveUntil(
+          //         context,
+          //         MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
+          //         (route) => false);
+          //   }
+          // }
+
+          );
     } catch (e) {
       debugPrint(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
- 
+
   @override
   Widget build(BuildContext context) {
     final _scwidth = MediaQuery.of(context).size.width;
@@ -252,7 +285,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _isPatient? 'PATIENT REGISTER' : 'DOCTOR REGISTER',
+                  _isPatient ? 'PATIENT REGISTER' : 'DOCTOR REGISTER',
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -261,11 +294,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(
                   height: 20,
                 ),
+                // TextFormField(
+                //   controller: _phoneController,
+                //   keyboardType: const TextInputType.numberWithOptions(),
+                //   decoration: InputDecoration(
+                //     hintText: 'Enter Phone Number',
+                //     hintStyle: TextStyle(
+                //       color: Colors.white.withAlpha(100),
+                //     ),
+                //   ),
+                //   style: const TextStyle(
+                //     color: Colors.white,
+                //   ),
+                // ),
                 TextFormField(
-                  controller: _phoneController,
-                  keyboardType: const TextInputType.numberWithOptions(),
+                  controller: _emailController,
+                  // keyboardType: const TextInputType.numberWithOptions(),
                   decoration: InputDecoration(
-                    hintText: 'Enter Phone Number',
+                    hintText: 'Enter Email',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withAlpha(100),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  // keyboardType: const TextInputType.numberWithOptions(),
+                  decoration: InputDecoration(
+                    hintText: 'Enter Password',
                     hintStyle: TextStyle(
                       color: Colors.white.withAlpha(100),
                     ),
@@ -277,114 +336,123 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                _isPatient?
-                Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        hintText: 'Enter Patient Name',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withAlpha(100),
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      controller: _caretakerController,
-                      keyboardType: const TextInputType.numberWithOptions(),
-                      decoration: InputDecoration(
-                        hintText: 'Enter Caretaker Phone Number',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withAlpha(100),
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                  ],
-                ):
-                Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        hintText: 'Enter Doctor Name',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withAlpha(100),
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                  ],
-                ),
-                _isOtpSent
-                    ? TextFormField(
-                        controller: _otpController,
-                        keyboardType: TextInputType.number,
-                        onFieldSubmitted: (pin) async {
-                        await _verifyOtp(pin);
-                      },
-                        decoration: InputDecoration(
-                          hintText: 'Enter OTP',
-                          hintStyle: TextStyle(
-                            color: Colors.white.withAlpha(100),
+                _isPatient
+                    ? Column(
+                        children: [
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: InputDecoration(
+                              hintText: 'Enter Patient Name',
+                              hintStyle: TextStyle(
+                                color: Colors.white.withAlpha(100),
+                              ),
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          TextFormField(
+                            controller: _caretakerController,
+                            keyboardType:
+                                const TextInputType.numberWithOptions(),
+                            decoration: InputDecoration(
+                              hintText: 'Enter Caretaker Phone Number',
+                              hintStyle: TextStyle(
+                                color: Colors.white.withAlpha(100),
+                              ),
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
                       )
-                    : const SizedBox.shrink(),
-                _isOtpSent
-                    ? ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            foregroundColor: Colors.white),
-                        child: const Text('Login'),
-                      )
-                    : ElevatedButton(
-                        onPressed: () async 
-                        {
-                          await _verifyOtp(_otpController.text);
-                          setState(() {
-                    //          Navigator.of(context).push(MaterialPageRoute(
-                    // builder: (context) => LoginScreen(_phoneController.text)));
-                            _isOtpSent = true;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            foregroundColor: Colors.white),
-                        child: const Text('Send OTP'),
+                    : Column(
+                        children: [
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: InputDecoration(
+                              hintText: 'Enter Doctor Name',
+                              hintStyle: TextStyle(
+                                color: Colors.white.withAlpha(100),
+                              ),
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
                       ),
+                // _isOtpSent
+                //     ? TextFormField(
+                //         controller: _otpController,
+                //         keyboardType: TextInputType.number,
+                //         onFieldSubmitted: (pin) async {
+                //           await _verifyOtp(pin);
+                //         },
+                //         decoration: InputDecoration(
+                //           hintText: 'Enter OTP',
+                //           hintStyle: TextStyle(
+                //             color: Colors.white.withAlpha(100),
+                //           ),
+                //         ),
+                //         style: const TextStyle(
+                //           color: Colors.white,
+                //         ),
+                //       )
+                //     : const SizedBox.shrink(),
+                // _isOtpSent
+                //     ? ElevatedButton(
+                //         onPressed: () {},
+                //         style: ElevatedButton.styleFrom(
+                //             backgroundColor: Colors.indigo,
+                //             foregroundColor: Colors.white),
+                //         child: const Text('Login'),
+                //       )
+                //     : ElevatedButton(
+                //         onPressed: () async {
+                //           await _verifyOtp(_otpController.text);
+                //           setState(() {
+                //             //          Navigator.of(context).push(MaterialPageRoute(
+                //             // builder: (context) => LoginScreen(_phoneController.text)));
+                //             _isOtpSent = true;
+                //           });
+                //         },
+                //         style: ElevatedButton.styleFrom(
+                //             backgroundColor: Colors.indigo,
+                //             foregroundColor: Colors.white),
+                //         child: const Text('Send OTP'),
+                //       ),
+                ElevatedButton(
+                    onPressed: () {
+                      signup(
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                          name: _nameController.text,
+                          caretakerNumber: _caretakerController.text);
+                    },
+                    child: Text('Register')),
                 const SizedBox(
                   height: 15,
                 ),
                 TextButton(
                     onPressed: () {
                       Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen() ),
-                  );
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
                     },
                     child: const Text(
                       'Login',
@@ -397,6 +465,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-  
 }
-

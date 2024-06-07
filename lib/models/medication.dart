@@ -7,11 +7,12 @@ class Medication {
   final List<bool> mTime;
   final String mInstructions;
 
-  Medication({required this.mId, required this.mName, required this.mTime});
+  Medication(
+      {required this.mInstructions, required this.mName, required this.mTime});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'mId': mId,
+      'mId': mInstructions,
       'mName': mName,
       'mTime': mTime,
     };
@@ -19,14 +20,15 @@ class Medication {
 
   factory Medication.fromMap(Map<String, dynamic> map) {
     return Medication(
-      mId: map['mId'] as String,
-      mName: map['mName'] as String,
-      mTime: List<bool>.from((map['mTime'] as List<bool>),)
-    );
+        mInstructions: map['mInstructions'] as String,
+        mName: map['mName'] as String,
+        mTime: List<bool>.from(
+          (map['mTime'] as List<bool>),
+        ));
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Medication.fromJson(String source) => Medication.fromMap(json.decode(source) as Map<String, dynamic>);
-
+  factory Medication.fromJson(String source) =>
+      Medication.fromMap(json.decode(source) as Map<String, dynamic>);
 }

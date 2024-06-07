@@ -14,7 +14,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _phoneController = TextEditingController();
+  final _emailcontroller = TextEditingController();
   final _otpController = TextEditingController();
+  final _passwordController = TextEditingController();
   // final String phone = '';
   String? _verificationCode;
   bool _isPatient = true;
@@ -26,6 +28,17 @@ class _LoginScreenState extends State<LoginScreen> {
     _phoneController.dispose();
     _otpController.dispose();
   }
+
+  void login({required String email, required String password}) async {
+    try {
+      final UserCredential userCred = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      final uid = userCred.user!.uid;
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final _scwidth = MediaQuery.of(context).size.width;
@@ -77,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _isPatient? 'PATIENT LOGIN': 'DOCTOR LOGIN',
+                  _isPatient ? 'PATIENT LOGIN' : 'DOCTOR LOGIN',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -86,11 +99,37 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(
                   height: 20,
                 ),
+                // TextFormField(
+                //   controller: _phoneController,
+                //   keyboardType: const TextInputType.numberWithOptions(),
+                //   decoration: InputDecoration(
+                //     hintText: 'Enter Phone Number',
+                //     hintStyle: TextStyle(
+                //       color: Colors.white.withAlpha(100),
+                //     ),
+                //   ),
+                //   style: const TextStyle(
+                //     color: Colors.white,
+                //   ),
+                // ),
                 TextFormField(
-                  controller: _phoneController,
-                  keyboardType: const TextInputType.numberWithOptions(),
+                  controller: _emailcontroller,
+                  // keyboardType: const TextInputType.num,
                   decoration: InputDecoration(
-                    hintText: 'Enter Phone Number',
+                    hintText: 'Enter Email',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withAlpha(100),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  // keyboardType: const TextInputType.numberWithOptions(),
+                  decoration: InputDecoration(
+                    hintText: 'Enter Password',
                     hintStyle: TextStyle(
                       color: Colors.white.withAlpha(100),
                     ),
@@ -102,56 +141,57 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                _isOtpSent
-                    ? TextFormField(
-                        controller: _otpController,
-                        keyboardType: TextInputType.number,
-                        onFieldSubmitted: (pin) async {
-                        await _verifyOtp(pin);
-                      },
-                        decoration: InputDecoration(
-                          hintText: 'Enter OTP',
-                          hintStyle: TextStyle(
-                            color: Colors.white.withAlpha(100),
-                          ),
-                        ),
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-                _isOtpSent
-                    ? ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            foregroundColor: Colors.white),
-                        child: const Text('Login'),
-                      )
-                    : ElevatedButton(
-                        onPressed: () async 
-                        {
-                          await _verifyOtp(_otpController.text);
-                          setState(() {
-                    //          Navigator.of(context).push(MaterialPageRoute(
-                    // builder: (context) => LoginScreen(_phoneController.text)));
-                            _isOtpSent = true;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            foregroundColor: Colors.white),
-                        child: const Text('Send OTP'),
-                      ),
-                const SizedBox(
-                  height: 15,
-                ),
+                ElevatedButton(onPressed: () {}, child: Text('Login')),
+                // _isOtpSent
+                //     ? TextFormField(
+                //         controller: _otpController,
+                //         keyboardType: TextInputType.number,
+                //         onFieldSubmitted: (pin) async {
+                //           await _verifyOtp(pin);
+                //         },
+                //         decoration: InputDecoration(
+                //           hintText: 'Enter OTP',
+                //           hintStyle: TextStyle(
+                //             color: Colors.white.withAlpha(100),
+                //           ),
+                //         ),
+                //         style: const TextStyle(
+                //           color: Colors.white,
+                //         ),
+                //       )
+                //     : const SizedBox.shrink(),
+                // _isOtpSent
+                //     ? ElevatedButton(
+                //         onPressed: () {},
+                //         style: ElevatedButton.styleFrom(
+                //             backgroundColor: Colors.indigo,
+                //             foregroundColor: Colors.white),
+                //         child: const Text('Login'),
+                //       )
+                //     : ElevatedButton(
+                //         onPressed: () async {
+                //           await _verifyOtp(_otpController.text);
+                //           setState(() {
+                //             //          Navigator.of(context).push(MaterialPageRoute(
+                //             // builder: (context) => LoginScreen(_phoneController.text)));
+                //             _isOtpSent = true;
+                //           });
+                //         },
+                //         style: ElevatedButton.styleFrom(
+                //             backgroundColor: Colors.indigo,
+                //             foregroundColor: Colors.white),
+                //         child: const Text('Send OTP'),
+                //       ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
                 TextButton(
                     onPressed: () {
-                       Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => RegisterScreen() ),
-  );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RegisterScreen()),
+                      );
                     },
                     child: const Text(
                       'Register',
@@ -164,6 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
   Future<void> _verifyOtp(String pin) async {
     try {
       debugPrint("reached1");
@@ -182,45 +223,49 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } catch (e) {
       debugPrint("reached3");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
   _verifyPhone() async {
-    try{
-        await firebaseAuth.verifyPhoneNumber(
-      phoneNumber: '+91${_phoneController.text}',
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await firebaseAuth.signInWithCredential(credential).then((value) async {
-          if (value.user != null) {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
-                (route) => false);
-          }
-        });
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        print(e.message);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message!)));
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() {
-          _verificationCode = verificationId;
-        });
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        setState(() {
-          _verificationCode = verificationId;
-        });
-      },
-      timeout: Duration(seconds: 120),
-    );
-    }
-    catch(e){
+    try {
+      await firebaseAuth.verifyPhoneNumber(
+        phoneNumber: '+91${_phoneController.text}',
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await firebaseAuth
+              .signInWithCredential(credential)
+              .then((value) async {
+            if (value.user != null) {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
+                  (route) => false);
+            }
+          });
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          print(e.message);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(e.message!)));
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            _verificationCode = verificationId;
+          });
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          setState(() {
+            _verificationCode = verificationId;
+          });
+        },
+        timeout: Duration(seconds: 120),
+      );
+    } catch (e) {
       debugPrint("reached3");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    }    
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
   @override
@@ -229,4 +274,3 @@ class _LoginScreenState extends State<LoginScreen> {
     // _verifyPhone();
   }
 }
-
