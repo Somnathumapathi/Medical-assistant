@@ -64,7 +64,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       final qsnap = await fireStore
           .collection(isPatient ? 'Patient' : 'Doctor')
-          .doc('$uid')
+          .doc(uid)
           .get();
 
       final data = qsnap.data();
@@ -78,6 +78,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               MaterialPageRoute(builder: (context) => PatientHomeScreen()));
         } else {
           await prefs.setString('role', 'Doctor');
+          print('rrrrrrrrrrrrrr');
           final _doctor = Doctor.fromMap(data);
           ref.read(doctorProvider).setDoctor(_doctor);
           Navigator.push(context,

@@ -1,5 +1,7 @@
-import 'package:medical-assistant/lib/models/report.dart';
+// import 'package:medical-assistant/lib/models/report.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../models/report.dart';
 
 class ReportService {
   final CollectionReference reportCollection =

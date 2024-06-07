@@ -1,8 +1,11 @@
-import 'package:medical-assistant/lib/models/doctor.dart';
+// import 'package:medical-assistant/lib/models/doctor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/doctor.dart';
+
 class DoctorService {
-  final CollectionReference doctorCollection = FirebaseFirestore.instance.collection('doctors');
+  final CollectionReference doctorCollection =
+      FirebaseFirestore.instance.collection('doctors');
 
   Future<void> createDoctor(Doctor doctor) async {
     await doctorCollection.add(doctor.toMap());

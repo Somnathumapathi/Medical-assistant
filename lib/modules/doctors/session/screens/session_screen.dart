@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:lottie/lottie.dart';
+import 'package:medical_assistant/commons/constants.dart';
+import 'package:medical_assistant/commons/utils.dart';
 import 'package:medical_assistant/modules/doctors/session/screens/sessionresults_screen.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -16,9 +18,11 @@ class SessionScreen extends StatefulWidget {
 class _SessionScreenState extends State<SessionScreen> {
   final SpeechToText _speechToText = SpeechToText();
   Gemini gemini = Gemini.instance;
+  bool _isLoading = false;
 
   bool _isMicOn = false;
   String _lastWords = '';
+  String res = '';
   void _initSpeech() async {
     await _speechToText.initialize();
     setState(() {});
@@ -51,76 +55,91 @@ class _SessionScreenState extends State<SessionScreen> {
     return Scaffold(
       backgroundColor: Colors.indigo,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _isMicOn
-                ? Column(
-                    children: [
-                      Text(
-                        'Go on...',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 23,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      LottieBuilder.asset('assets/recording.json'),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white),
-                          onPressed: () {
-                            _stopListening();
-                            gemini
-                                .text(
-                                    "Give me some illness and tablet names in json format make it as precise as possible")
-                                .then((value) => print(value?.output))
-                                .catchError((e) => print(e));
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: ((context) => SessionResultScreen(
-                                        speechResult: _lastWords))));
-                          },
-                          icon: Icon(Icons.stop),
-                          label: Text('Generate')),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      Text(
-                        'Start Session',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 23,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(
-                        height: 35,
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            SystemSound.play(SystemSoundType.click);
-                            setState(() {
-                              _isMicOn = !_isMicOn;
-                            });
-                            _startListening();
-                          },
-                          icon: Icon(
-                            Icons.mic,
-                            color: Colors.white,
-                            size: 50,
-                          )),
-                    ],
-                  )
-          ],
-        ),
+        child: _isLoading
+            ? LottieBuilder.asset(
+                'assets/analyzing.json',
+                height: 300,
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _isMicOn
+                      ? Column(
+                          children: [
+                            Text(
+                              'Go on...',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            LottieBuilder.asset('assets/recording.json'),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white),
+                                onPressed: () async {
+                                  _stopListening();
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+                                  await gemini
+                                      .text(
+                                          "You have fever, so take paracetamol for 3 days in morning and night" +
+                                              PROMPT)
+                                      .then((value) {
+                                    print(value);
+                                    res = value?.content.toString() ??
+                                        'no result';
+                                  }).catchError((e) {
+                                    showSnackBar(context, e.toString());
+                                  });
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: ((context) =>
+                                              SessionResultScreen(
+                                                  speechResult: res))));
+                                },
+                                icon: Icon(Icons.stop),
+                                label: Text('Generate')),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Text(
+                              'Start Session',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 35,
+                            ),
+                            IconButton(
+                                onPressed: () {
+                                  SystemSound.play(SystemSoundType.click);
+                                  setState(() {
+                                    _isMicOn = !_isMicOn;
+                                  });
+                                  _startListening();
+                                },
+                                icon: Icon(
+                                  Icons.mic,
+                                  color: Colors.white,
+                                  size: 50,
+                                )),
+                          ],
+                        )
+                ],
+              ),
       ),
     );
   }
