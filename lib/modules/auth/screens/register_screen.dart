@@ -79,30 +79,122 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }    
   }
 
+  //  Future<void> signUpWithMobileAndPassword() async {
+  //   // String phoneNumber = "+${selectedCountry.phoneCode}${mobilenosignup.text}";
+  //   TextEditingController otpcontroller = TextEditingController();
+    
+  //     try {
+  //       await FirebaseAuth.instance.verifyPhoneNumber(
+  //         phoneNumber: _phoneController.text,
+  //         verificationCompleted: (PhoneAuthCredential credential) async {
+  //           await FirebaseAuth.instance
+  //               .signInWithCredential(credential)
+  //               .then((userCredential) async {});
+  //         },
+  //         verificationFailed: (FirebaseAuthException e) {
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             SnackBar(
+  //               content: Text('Verification failed: ${e.message}'),
+  //             ),
+  //           );
+  //         },
+  //         codeSent: (String verificationId, int? resendToken) {
+  //           showOTPDialog(
+  //             context: context,
+  //             otpcontroller: otpcontroller,
+  //             onPressed: () async {
+  //               PhoneAuthCredential credential = PhoneAuthProvider.credential(
+  //                 verificationId: verificationId,
+  //                 smsCode: otpcontroller.text.trim(),
+  //               );
+                
+  //               });
+  //             },
+  //           );
+  //         },
+  //         codeAutoRetrievalTimeout: (String verificationId) {},
+  //       );
+  //     } catch (e) {
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return AlertDialog(
+  //             title: const Text('Sign Up Error'),
+  //             content: const Text(
+  //               'An error occurred while signing up. Please try again.',
+  //             ),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: const Text('OK'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  // }
+
+
   Future<void> _verifyOtp(String pin) async {
     try {
       debugPrint("reached1");
       _verificationCode = _otpController.text;
-      final cred = await firebaseAuth
-          .signInWithCredential(PhoneAuthProvider.credential(
-              verificationId: _verificationCode!, smsCode: pin))
-          .then((value) async {
-        if (value.user != null) {
+      // final cred = await firebaseAuth
+      //     .signInWithCredential(PhoneAuthProvider.credential(
+      //         verificationId: _verificationCode!, smsCode: pin, )
+              PhoneAuthCredential credential = PhoneAuthProvider.credential(
+                  verificationId: _verificationCode!,
+                  smsCode: pin,
+                );
+                debugPrint("ahsd");
+                await firebaseAuth
+                    .signInWithCredential(credential)
+                    .then((userCredential) async {
+                  String uid = userCredential.user!.uid;
+                  // debugPrint("ahsd");
+                  // if (value.user != null) {
           debugPrint("reached2");
           final prefs = await SharedPreferences.getInstance();
 
             await prefs.setString('phNumber', '${_phoneController.text}');
-            await prefs.setString('x-id', value.user!.uid);
+            await prefs.setString('x-id', uid);
             final firestore = FirebaseFirestore.instance;
             final _patient = Patient(pId: '', pName: _nameController.text, reports: [], breakfastTime: '', lunchTime: '', dinnerTime: '', language: '', careTakerNo: _caretakerController.text, pNo: _phoneController.text);
             final _doctor = Doctor(dname: _nameController.text, dId: '', dNumber: _phoneController.text);
-            final ref = firestore.collection(_isPatient?'Patient':"Doctor").add(_isPatient?_patient.toMap():_doctor.toMap());
+            print('reeeee');
+            final ref = await firestore.collection(_isPatient?'Patient':"Doctor").add(_isPatient?_patient.toMap():_doctor.toMap());
+
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
               (route) => false);
         }
-      });
+                  // }
+          // .then((value) async {
+      //   if (value.user != null) {
+      //     debugPrint("reached2");
+      //     final prefs = await SharedPreferences.getInstance();
+
+      //       await prefs.setString('phNumber', '${_phoneController.text}');
+      //       await prefs.setString('x-id', value.user!.uid);
+      //       final firestore = FirebaseFirestore.instance;
+      //       final _patient = Patient(pId: '', pName: _nameController.text, reports: [], breakfastTime: '', lunchTime: '', dinnerTime: '', language: '', careTakerNo: _caretakerController.text, pNo: _phoneController.text);
+      //       final _doctor = Doctor(dname: _nameController.text, dId: '', dNumber: _phoneController.text);
+      //       print('reeeee');
+      //       final ref = await firestore.collection(_isPatient?'Patient':"Doctor").add(_isPatient?_patient.toMap():_doctor.toMap());
+
+      //     Navigator.pushAndRemoveUntil(
+      //         context,
+      //         MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
+      //         (route) => false);
+      //   }
+      // }
+      
+      );
+      
     } catch (e) {
       debugPrint(e.toString());
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
