@@ -9,7 +9,8 @@ class Report {
   final String doctorName;
   final String patientName;
   final String description;
-  final List<String> videoLinks;
+  // final List<String> videoLinks;
+  final String medicalDiagnosis;
   final List<Medication> medications;
 
   Report(
@@ -21,6 +22,7 @@ class Report {
       required this.doctorName,
       required this.patientName,
       required this.description,
-      required this.videoLinks,
+      required this.medicalDiagnosis,
+      // required this.videoLinks,
       required this.medications});
 }

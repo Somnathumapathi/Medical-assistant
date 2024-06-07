@@ -1,7 +1,9 @@
 class Medication {
-  final String mId;
+  // final String mId;
   final String mName;
   final List<bool> mTime;
+  final String mInstructions;
 
-  Medication({required this.mId, required this.mName, required this.mTime});
+  Medication(
+      {required this.mName, required this.mTime, required this.mInstructions});
 }

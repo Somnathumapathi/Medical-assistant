@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 _isOtpSent
                     ? TextFormField(
-                        controller: _phoneController,
+                        controller: _otpController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           hintText: 'Enter OTP',
