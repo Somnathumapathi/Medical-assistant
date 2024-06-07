@@ -6,7 +6,7 @@ final firebaseAuth = FirebaseAuth.instance;
 final fireStore = FirebaseFirestore.instance;
 
 final PROMPT =
-    """Please provide a JSON report summarizing the patient's medical condition and prescribed medications based on the speech-to-text (STT) output. 
+    """This is the speech to text result of the doctor. For this, please provide a JSON report summarizing the patient's medical condition and prescribed medications based on this speech-to-text (STT) output. 
 1. Disease Information:
    - Extract the medical diagnosis of the patient.
    - Provide a detailed description of the diagnosis in layman terms, including symptoms and any relevant medical history.
@@ -30,7 +30,6 @@ The JSON output should be structured as follows:
       \"mTime\": [true, false, true],
       \"mDuration\":\"Duration of medication\",
       \"mInstructions\": \"Detailed instructions on how to take the medication, including dosage and any special instructions.\"
-
     }
   ]
 }
