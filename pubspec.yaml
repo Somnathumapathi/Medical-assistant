@@ -36,7 +36,7 @@ dependencies:
   cloud_firestore: ^4.15.8
   firebase_storage: ^11.6.9
   
-ffpns:
+  ffpns:
     git:
       url: https://github.com/synapsecode/ffpns.git
   shared_preferences:
@@ -52,8 +52,6 @@ ffpns:
   riverpod: ^2.5.1
   curved_navigation_bar: ^1.0.4
   flutter_riverpod: ^2.5.1
-
-  shared_preferences: ^2.2.3
 
   camera: ^0.10.5+9
   # tflite: ^1.1.2

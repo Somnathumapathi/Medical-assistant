@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:ffpns/ffpns.dart';
 import 'package:medical_assistant/ffpns_playground.dart';
 import 'package:shared_preferences/shared_preferences.dart';
