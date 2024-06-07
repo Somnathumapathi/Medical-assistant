@@ -8,6 +8,24 @@
         android:label="medical_assistant"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        
+
+         <!-- PushNotifications-META -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notifbackground" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="ffpns" />
+         <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <!-- PushNotifications-META -->
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,6 +46,15 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Push Notifications (Intents) -->
+                <intent-filter>
+                    <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
+                    <category android:name="android.intent.category.DEFAULT"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                </intent-filter>
+            <!-- Push Notifications (Intents)-->
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
