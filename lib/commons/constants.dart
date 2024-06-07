@@ -26,7 +26,9 @@ The JSON output should be structured as follows:
     {
       \"mName\": \"Name of the medication.\",
       \"mTime\": [true, false, true],
+      \"mDuration\":\"Duration of medication\",
       \"mInstructions\": \"Detailed instructions on how to take the medication, including dosage and any special instructions.\"
+
     }
   ]
 }
