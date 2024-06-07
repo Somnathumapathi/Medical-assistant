@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SessionResultScreen extends StatefulWidget {
-  SessionResultScreen({super.key, required this.speechResult});
-  String speechResult;
+  const SessionResultScreen({super.key, required this.speechResult});
+  final String speechResult;
   @override
   State<SessionResultScreen> createState() => _SessionResultScreenState();
 }
