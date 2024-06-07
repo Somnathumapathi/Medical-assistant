@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:medical_assistant/ffpns.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+  await initializeFFPNS();
   Gemini.init(apiKey: API_KEY);
   cameras = await availableCameras();
   runApp(const ProviderScope(child: MyApp()));
