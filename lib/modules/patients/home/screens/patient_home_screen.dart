@@ -1,24 +1,26 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patient_monitoring_screen.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patient_profile_screen.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patiet_reports_screen.dart';
+import 'package:medical_assistant/providers/patient_provider.dart';
 
-class PatientHomeScreen extends StatefulWidget {
+class PatientHomeScreen extends ConsumerStatefulWidget {
   const PatientHomeScreen({super.key});
 
   @override
-  State<PatientHomeScreen> createState() => _PatientHomeScreenState();
+  ConsumerState<PatientHomeScreen> createState() => _PatientHomeScreenState();
 }
 
-class _PatientHomeScreenState extends State<PatientHomeScreen> {
+class _PatientHomeScreenState extends ConsumerState<PatientHomeScreen> {
   int _screenIdx = 1;
   getBody(double screenWidth, double screenHeight) {
     if (_screenIdx == 0) {
       return const PatientProfileScreen();
     } else if (_screenIdx == 1) {
-      return const Center(
-        child: Text('Home'),
+      return Center(
+        child: Text(ref.read(patientProvider).patient!.pName),
       );
     } else if (_screenIdx == 2) {
       return const PatientMonitoringScreen();

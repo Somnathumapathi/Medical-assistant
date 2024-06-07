@@ -4,15 +4,15 @@ import 'dart:convert';
 class Doctor {
   final String dname;
   final String dId;
-  final String dNumber;
+  final String dMail;
 
-  Doctor({required this.dname, required this.dId, required this.dNumber});
+  Doctor({required this.dname, required this.dId, required this.dMail});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'dname': dname,
       'dId': dId,
-      'dNumber': dNumber,
+      'dMail': dMail,
     };
   }
 
@@ -20,11 +20,12 @@ class Doctor {
     return Doctor(
       dname: map['dname'] as String,
       dId: map['dId'] as String,
-      dNumber: map['dNumber'] as String,
+      dMail: map['dMail'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Doctor.fromJson(String source) => Doctor.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Doctor.fromJson(String source) =>
+      Doctor.fromMap(json.decode(source) as Map<String, dynamic>);
 }

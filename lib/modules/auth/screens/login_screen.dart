@@ -2,17 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/basic.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medical_assistant/commons/utils.dart';
+import 'package:medical_assistant/models/doctor.dart';
+import 'package:medical_assistant/models/patient.dart';
 import 'package:medical_assistant/modules/doctors/home/screens/doctor_home_screen.dart';
 import 'package:medical_assistant/modules/auth/screens/register_screen.dart';
+import 'package:medical_assistant/providers/doctor_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../commons/constants.dart';
+import '../../../providers/patient_provider.dart';
+import '../../patients/home/screens/patient_home_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneController = TextEditingController();
   final _emailcontroller = TextEditingController();
   final _otpController = TextEditingController();
@@ -29,13 +37,64 @@ class _LoginScreenState extends State<LoginScreen> {
     _otpController.dispose();
   }
 
-  void login({required String email, required String password}) async {
+  void login(
+      {required String email,
+      required String password,
+      required bool isPatient}) async {
     try {
       final UserCredential userCred = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       final uid = userCred.user!.uid;
+      print(uid);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('x-uid', uid);
+
+      // final cRef = fireStore.collection(isPatient?'Patient':'Doctor');
+      //  final _patient = Patient(
+      //     pId: uid,
+      //     pName: ,
+      //     pMail: '',
+      //     reports: [],
+      //     breakfastTime: '',
+      //     lunchTime: '',
+      //     dinnerTime: '',
+      //     language: '',
+      //     careTakerNo: caretakerNumber);
+      // final _doctor = Doctor(dname: name, dId: uid, dMail: email);
+
+      final qsnap = await fireStore
+          .collection(isPatient ? 'Patient' : 'Doctor')
+          .doc('$uid')
+          .get();
+
+      final data = qsnap.data();
+      print(data);
+      if (data != null) {
+        if (isPatient) {
+          final _patient = Patient.fromMap(data);
+          await prefs.setString('role', 'Patient');
+          ref.read(patientProvider).setPatient(_patient);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => PatientHomeScreen()));
+        } else {
+          await prefs.setString('role', 'Doctor');
+          final _doctor = Doctor.fromMap(data);
+          ref.read(doctorProvider).setDoctor(_doctor);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => DoctorHomeScreen()));
+        }
+      } else {
+        showSnackBar(context, 'No user');
+      }
+
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: ((context) =>
+      //             isPatient ? PatientHomeScreen() : DoctorHomeScreen())));
     } catch (e) {
       print(e);
+      showSnackBar(context, e.toString());
     }
   }
 
@@ -141,7 +200,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                ElevatedButton(onPressed: () {}, child: Text('Login')),
+                ElevatedButton(
+                    onPressed: () => login(
+                        email: _emailcontroller.text,
+                        password: _passwordController.text,
+                        isPatient: _isPatient),
+                    child: Text('Login')),
                 // _isOtpSent
                 //     ? TextFormField(
                 //         controller: _otpController,

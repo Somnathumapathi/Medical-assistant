@@ -2,20 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medical_assistant/commons/constants.dart';
+import 'package:medical_assistant/commons/utils.dart';
 import 'package:medical_assistant/models/doctor.dart';
 import 'package:medical_assistant/models/patient.dart';
 import 'package:medical_assistant/modules/auth/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medical_assistant/modules/doctors/home/screens/doctor_home_screen.dart';
+import 'package:medical_assistant/modules/patients/home/screens/patient_home_screen.dart';
+import 'package:medical_assistant/providers/doctor_provider.dart';
+import 'package:medical_assistant/providers/patient_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
   final _nameController = TextEditingController();
@@ -48,14 +53,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
       {required String email,
       required String password,
       required String name,
-      required String caretakerNumber}) async {
+      required String caretakerNumber,
+      required bool isPatient}) async {
     try {
       final UserCredential userCred = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
       final uid = userCred.user!.uid;
+      // final prefs = await SharedPreferences.getInstance();
+      // await prefs.setString('email', email);
+      // await prefs.setString('x-id', uid);
+      final _patient = Patient(
+          pId: uid,
+          pName: name,
+          pMail: '',
+          reports: [],
+          breakfastTime: '',
+          lunchTime: '',
+          dinnerTime: '',
+          language: '',
+          careTakerNo: caretakerNumber);
+      final _doctor = Doctor(dname: name, dId: uid, dMail: email);
+      final docref = await fireStore
+          .collection(isPatient ? 'Patient' : 'Doctor')
+          .doc(uid)
+          .set(isPatient ? _patient.toMap() : _doctor.toMap());
+      // isPatient
+      //     ? ref.read(patientProvider).setPatient(_patient)
+      //     : ref.read(doctorProvider).setDoctor(_doctor);
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: ((context) =>
+      //             isPatient ? PatientHomeScreen() : DoctorHomeScreen())));
+      showSnackBar(context, 'Account Created');
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
     } catch (e) {
-      print(e);
+      // print(e);
+      showSnackBar(context, e.toString());
     }
   }
 
@@ -190,11 +226,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             dinnerTime: '',
             language: '',
             careTakerNo: _caretakerController.text,
-            pNo: _phoneController.text);
+            pMail: _phoneController.text);
         final _doctor = Doctor(
-            dname: _nameController.text,
-            dId: '',
-            dNumber: _phoneController.text);
+            dname: _nameController.text, dId: '', dMail: _phoneController.text);
         print('reeeee');
         final ref = await firestore
             .collection(_isPatient ? 'Patient' : "Doctor")
@@ -215,7 +249,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           //       await prefs.setString('x-id', value.user!.uid);
           //       final firestore = FirebaseFirestore.instance;
           //       final _patient = Patient(pId: '', pName: _nameController.text, reports: [], breakfastTime: '', lunchTime: '', dinnerTime: '', language: '', careTakerNo: _caretakerController.text, pNo: _phoneController.text);
-          //       final _doctor = Doctor(dname: _nameController.text, dId: '', dNumber: _phoneController.text);
+          //       final _doctor = Doctor(dname: _nameController.text, dId: '', dMail: _phoneController.text);
           //       print('reeeee');
           //       final ref = await firestore.collection(_isPatient?'Patient':"Doctor").add(_isPatient?_patient.toMap():_doctor.toMap());
 
@@ -438,6 +472,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ElevatedButton(
                     onPressed: () {
                       signup(
+                          isPatient: _isPatient,
                           email: _emailController.text,
                           password: _passwordController.text,
                           name: _nameController.text,

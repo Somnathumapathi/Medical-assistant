@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 final firebaseAuth = FirebaseAuth.instance;
+final fireStore = FirebaseFirestore.instance;
 
 final PROMPT =
     """Please provide a JSON report summarizing the patient's medical condition and prescribed medications based on the speech-to-text (STT) output. 

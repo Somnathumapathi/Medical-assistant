@@ -6,7 +6,7 @@ import 'package:medical_assistant/models/report.dart';
 class Patient {
   final String pId;
   final String pName;
-  final String pNo;
+  final String pMail;
   final List<Report> reports;
   final String breakfastTime;
   final String lunchTime;
@@ -17,7 +17,7 @@ class Patient {
   Patient(
       {required this.pId,
       required this.pName,
-      required this.pNo,
+      required this.pMail,
       required this.reports,
       required this.breakfastTime,
       required this.lunchTime,
@@ -29,7 +29,7 @@ class Patient {
     return <String, dynamic>{
       'pId': pId,
       'pName': pName,
-      'pNo': pNo,
+      'pMail': pMail,
       'reports': reports.map((x) => x.toMap()).toList(),
       'breakfastTime': breakfastTime,
       'lunchTime': lunchTime,
@@ -41,19 +41,24 @@ class Patient {
 
   factory Patient.fromMap(Map<String, dynamic> map) {
     return Patient(
-      pId:  map['pId'] as String,
-      pName:  map['pName'] as String,
-      pNo:  map['pNo'] as String,
-      reports:  List<Report>.from((map['reports'] as List<int>).map<Report>((x) => Report.fromMap(x as Map<String,dynamic>),),),
-      breakfastTime:  map['breakfastTime'] as String,
-      lunchTime:  map['lunchTime'] as String,
-      dinnerTime:  map['dinnerTime'] as String,
-      language:  map['language'] as String,
-      careTakerNo:  map['careTakerNo'] as String,
+      pId: map['pId'] as String,
+      pName: map['pName'] as String,
+      pMail: map['pMail'] as String,
+      reports: List<Report>.from(
+        (map['reports'] as List<dynamic>).map<Report>(
+          (x) => Report.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+      breakfastTime: map['breakfastTime'] as String,
+      lunchTime: map['lunchTime'] as String,
+      dinnerTime: map['dinnerTime'] as String,
+      language: map['language'] as String,
+      careTakerNo: map['careTakerNo'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Patient.fromJson(String source) => Patient.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Patient.fromJson(String source) =>
+      Patient.fromMap(json.decode(source) as Map<String, dynamic>);
 }
