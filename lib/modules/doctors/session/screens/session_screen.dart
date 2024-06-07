@@ -79,7 +79,7 @@ class _SessionScreenState extends State<SessionScreen> {
                             _stopListening();
                             gemini
                                 .text(
-                                    "Give me some illness and tablet names in json format")
+                                    "Give me some illness and tablet names in json format make it as precise as possible")
                                 .then((value) => print(value?.output))
                                 .catchError((e) => print(e));
                             Navigator.push(

@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
@@ -8,11 +9,13 @@ import 'package:medical_assistant/modules/doctors/session/screens/session_screen
 import 'package:medical_assistant/modules/patients/home/screens/patient_home_screen.dart';
 import 'package:medical_assistant/secrets.dart';
 
+List<CameraDescription>? cameras;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
   Gemini.init(apiKey: API_KEY);
+  cameras = await availableCameras();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -43,7 +46,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const DoctorHomeScreen(),
+      home: const PatientHomeScreen(),
     );
   }
 }
