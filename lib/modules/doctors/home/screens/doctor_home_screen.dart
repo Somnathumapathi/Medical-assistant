@@ -21,3 +21,46 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
         }));
   }
 }
+
+// import 'package:medical_assistant/modules/auth/screens/login_screen.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:flutter/material.dart';
+// import 'package:medical_assistant/modules/auth/screens/login_screen.dart';
+
+// class Home extends StatefulWidget {
+//   @override
+//   _HomeState createState() => _HomeState();
+// }
+
+// class _HomeState extends State<Home> {
+//   String? uid;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Home'),
+//         actions: [
+//           IconButton(
+//             icon: Icon(Icons.logout),
+//             onPressed: () async {
+//               await firebaseAuth.signOut();
+//               Navigator.pushAndRemoveUntil(
+//                   context,
+//                   MaterialPageRoute(builder: (context) => LoginScreen("hello")),
+//                   (route) => false);
+//             },
+//           )
+//         ],
+//       ),
+//       body: Center(
+//         child: Text(uid!),
+//       ),
+//     );
+//   }
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     uid = firebaseAuth.currentUser!.uid;
+//   }
+// }

@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/basic.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:medical_assistant/modules/doctors/home/screens/doctor_home_screen.dart';
+import 'package:medical_assistant/modules/auth/screens/register_screen.dart';
 
 import '../../../commons/constants.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
+  // final String phone = '';
+  String? _verificationCode;
   bool _isPatient = true;
   bool _isOtpSent = false;
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _phoneController.dispose();
+    _otpController.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final _scwidth = MediaQuery.of(context).size.width;
@@ -64,8 +76,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'LOGIN',
+                Text(
+                  _isPatient? 'PATIENT LOGIN': 'DOCTOR LOGIN',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -92,8 +104,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 _isOtpSent
                     ? TextFormField(
-                        controller: _phoneController,
+                        controller: _otpController,
                         keyboardType: TextInputType.number,
+                        onFieldSubmitted: (pin) async {
+                        await _verifyOtp(pin);
+                      },
                         decoration: InputDecoration(
                           hintText: 'Enter OTP',
                           hintStyle: TextStyle(
@@ -114,9 +129,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text('Login'),
                       )
                     : ElevatedButton(
-                        onPressed: () async {
-                          // await firebaseAuth.verifyPhoneNumber(verificationCompleted: verificationCompleted, verificationFailed: verificationFailed, codeSent: codeSent, codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
+                        onPressed: () async 
+                        {
+                          await _verifyOtp(_otpController.text);
                           setState(() {
+                    //          Navigator.of(context).push(MaterialPageRoute(
+                    // builder: (context) => LoginScreen(_phoneController.text)));
                             _isOtpSent = true;
                           });
                         },
@@ -129,7 +147,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 15,
                 ),
                 TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                       Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => RegisterScreen() ),
+  );
+                    },
                     child: const Text(
                       'Register',
                       style: TextStyle(color: Colors.white),
@@ -141,4 +164,69 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+  Future<void> _verifyOtp(String pin) async {
+    try {
+      debugPrint("reached1");
+      _verificationCode = _otpController.text;
+      await firebaseAuth
+          .signInWithCredential(PhoneAuthProvider.credential(
+              verificationId: _verificationCode!, smsCode: pin))
+          .then((value) async {
+        if (value.user != null) {
+          debugPrint("reached2");
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
+              (route) => false);
+        }
+      });
+    } catch (e) {
+      debugPrint("reached3");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  _verifyPhone() async {
+    try{
+        await firebaseAuth.verifyPhoneNumber(
+      phoneNumber: '+91${_phoneController.text}',
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await firebaseAuth.signInWithCredential(credential).then((value) async {
+          if (value.user != null) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => DoctorHomeScreen()),
+                (route) => false);
+          }
+        });
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        print(e.message);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message!)));
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        setState(() {
+          _verificationCode = verificationId;
+        });
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        setState(() {
+          _verificationCode = verificationId;
+        });
+      },
+      timeout: Duration(seconds: 120),
+    );
+    }
+    catch(e){
+      debugPrint("reached3");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }    
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // _verifyPhone();
+  }
 }
+
