@@ -23,12 +23,12 @@ class _PatientMonitoringScreenState extends State<PatientMonitoringScreen> {
   void initState() {
     loadInitCamera();
     loadModel();
-    Future.delayed(const Duration(seconds: 6), () {
+    Future.delayed(const Duration(seconds: 10), () {
       setState(() {
         output = 'Heart Attack';
         attack = true;
       });
-      showSnackBar(context, 'Alert Sent (All is well!)');
+      showSnackBar(context, 'You have heart attack');
     });
     super.initState();
   }
