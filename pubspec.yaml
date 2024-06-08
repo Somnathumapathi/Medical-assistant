@@ -54,6 +54,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
 
   camera: ^0.10.5+9
+  tflite: ^1.1.2
   # tflite: ^1.1.2
 
 

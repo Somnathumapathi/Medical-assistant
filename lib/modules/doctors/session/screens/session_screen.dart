@@ -96,8 +96,7 @@ class _SessionScreenState extends State<SessionScreen> {
                                   });
                                   try {
                                     final response = await gemini.text(
-                                      "You have fever, so take paracetamol for 3 days in morning and night" +
-                                          PROMPT,
+                                      _lastWords + PROMPT,
                                     );
 
                                     if (response != null &&

@@ -5,6 +5,10 @@ import 'package:medical_assistant/modules/patients/home/screens/patient_monitori
 import 'package:medical_assistant/modules/patients/home/screens/patient_profile_screen.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patiet_reports_screen.dart';
 import 'package:medical_assistant/providers/patient_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../commons/constants.dart';
+import '../../../../models/patient.dart';
 
 class PatientHomeScreen extends ConsumerStatefulWidget {
   const PatientHomeScreen({super.key});
@@ -14,6 +18,24 @@ class PatientHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _PatientHomeScreenState extends ConsumerState<PatientHomeScreen> {
+  void getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final uid = await prefs.getString('x-uid');
+    final qsnap = await fireStore.collection('Patient').doc(uid).get();
+
+    final data = qsnap.data();
+    final _patient = Patient.fromMap(data!);
+    await prefs.setString('role', 'Patient');
+    ref.read(patientProvider).setPatient(_patient);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getUser();
+    super.initState();
+  }
+
   int _screenIdx = 1;
   getBody(double screenWidth, double screenHeight) {
     if (_screenIdx == 0) {

@@ -7,7 +7,7 @@ class Patient {
   final String pId;
   final String pName;
   final String pMail;
-  final List<Report> reports;
+  final List<dynamic> reports;
   final String breakfastTime;
   final String lunchTime;
   final String dinnerTime;
@@ -30,7 +30,7 @@ class Patient {
       'pId': pId,
       'pName': pName,
       'pMail': pMail,
-      'reports': reports.map((x) => x.toMap()).toList(),
+      'reports': reports,
       'breakfastTime': breakfastTime,
       'lunchTime': lunchTime,
       'dinnerTime': dinnerTime,
@@ -44,11 +44,7 @@ class Patient {
       pId: map['pId'] as String,
       pName: map['pName'] as String,
       pMail: map['pMail'] as String,
-      reports: List<Report>.from(
-        (map['reports'] as List<dynamic>).map<Report>(
-          (x) => Report.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
+      reports: List<dynamic>.from((map['reports'] as List<dynamic>)),
       breakfastTime: map['breakfastTime'] as String,
       lunchTime: map['lunchTime'] as String,
       dinnerTime: map['dinnerTime'] as String,

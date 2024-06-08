@@ -26,22 +26,22 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
           centerTitle: true,
         ),
         body: Center(
-            child: Column(
-          children: [
-            // CarouselSlider(items: [
-            //   Image.network("")
-            // ], options: options)
-          ],
-        )
-            // ElevatedButton(
-            //     onPressed: () async {
-            //       await firebaseAuth.signOut();
-            //       Navigator.popUntil(context, (route) => false);
-            //       Navigator.push(context,
-            //           MaterialPageRoute(builder: (context) => LoginScreen()));
-            //     },
-            //     child: Text('Log out')),
-            ),
+          child: Column(
+            children: [
+              // CarouselSlider(items: [
+              //   Image.network("")
+              // ], options: options)
+              ElevatedButton(
+                  onPressed: () async {
+                    await firebaseAuth.signOut();
+                    Navigator.popUntil(context, (route) => false);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                  },
+                  child: Text('Log out')),
+            ],
+          ),
+        ),
         // bottomNavigationBar: ,
         floatingActionButton: FloatingActionButton(onPressed: () {
           Navigator.push(context,

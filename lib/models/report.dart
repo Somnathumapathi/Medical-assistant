@@ -44,6 +44,30 @@ class Report {
     };
   }
 
+  factory Report.fFromMap(Map<String, dynamic> map) {
+    return Report(
+      rId: map['rId'] as String?,
+      rLink: map['rLink'] as String?,
+      startDate: map['startDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['startDate'] as int)
+          : null,
+      endTime: map['endTime'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int)
+          : null,
+      hospitalName: map['hospitalName'] as String?,
+      doctorName: map['doctorName'] as String?,
+      patientName: map['patientName'] as String?,
+      description: map['description'] as String?,
+      medicalDiagnosis: map['medicalDiagnosis'] as String?,
+      medications: map['medications'] != null
+          ? List<Medication>.from(
+              (map['medications'] as List)
+                  .map((x) => Medication.fromMap(x as Map<String, dynamic>)),
+            )
+          : null,
+    );
+  }
+
   factory Report.fromMap(Map<String, dynamic> map) {
     return Report(
       rId: (map['rId'])?.toString(),
