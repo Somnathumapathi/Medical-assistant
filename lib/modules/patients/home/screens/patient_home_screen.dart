@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,8 +42,24 @@ class _PatientHomeScreenState extends ConsumerState<PatientHomeScreen> {
     if (_screenIdx == 0) {
       return const PatientProfileScreen();
     } else if (_screenIdx == 1) {
-      return Center(
-        child: Text(ref.read(patientProvider).patient!.pName),
+      return Scaffold(
+        backgroundColor: Colors.blue,
+        body: Column(
+          children: [
+            CarouselSlider(
+                items: [
+                  Image.network(
+                      'https://www.northwestcareercollege.edu/wp-content/uploads/2022/06/Medical-Assisting-qualification-1.webp'),
+                  Image.network(
+                      'https://www.careeraddict.com/uploads/article/58344/illustrated-medical_assistant-xrays-doctor.jpg')
+                ],
+                options: CarouselOptions(
+                  autoPlay: true,
+                  height: 200,
+                  enlargeCenterPage: true,
+                ))
+          ],
+        ),
       );
     } else if (_screenIdx == 2) {
       return const PatientMonitoringScreen();

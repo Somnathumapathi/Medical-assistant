@@ -18,7 +18,6 @@ class SessionResultScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<SessionResultScreen> createState() =>
       _SessionResultScreenState();
-
 }
 
 class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
@@ -26,7 +25,6 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
   final _patientNameController = TextEditingController();
   final _patientEmailController = TextEditingController();
   final reportCollection = FirebaseFirestore.instance;
-
   late String result;
   final flutterTts = FlutterTts();
   final speech = stt.SpeechToText();
@@ -46,28 +44,10 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
     super.dispose();
   }
 
-
-  @override
-  void initState() {
-    super.initState();
-    _generateResultText();
-    _resultController = TextEditingController(text: result);
-  }
-
-  @override
-  void dispose() {
-    _resultController.dispose();
-    _durationController.dispose();
-    _patientNameController.dispose();
-    _patientEmailController.dispose();
-    super.dispose();
-  }
-
   void _generateResultText() {
     final medicalDiagnosis = widget.report.medicalDiagnosis ?? 'N/A';
     final description = widget.report.description ?? 'No description available';
     final medications = widget.report.medications?.map((medication) {
-
           return '''
       Name: ${medication.mName}
       Times: ${medication.mTime.asMap().entries.map((entry) {
@@ -80,11 +60,11 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
                     : 'dinner';
             return time ? 'Yes during $meal' : 'No during $meal';
           }).join(', ')}
-
       Duration: ${medication.mDuration}
       Instructions: ${medication.mInstructions}
       ''';
-    }).join('\n\n') ?? 'No medications available';
+        }).join('\n\n') ??
+        'No medications available';
 
     result = '''
     Medical Diagnosis: $medicalDiagnosis
@@ -95,7 +75,6 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
     $medications
     ''';
   }
-
 
   Future<void> createPDF() async {
     try {
@@ -149,78 +128,6 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Failed to generate PDF'),
       ));
-  Future<Report> _reportGeneration({required String doctorName, required int duration}) async {
-    final _report = Report(
-      startDate: DateTime.now(),
-      endTime: DateTime.now().add(Duration(days: duration)),
-      patientName: _patientNameController.text,
-      description: widget.report.description,
-      medicalDiagnosis: widget.report.medicalDiagnosis,
-      hospitalName: widget.report.hospitalName,
-      doctorName: doctorName,
-      medications: widget.report.medications,
-    );
-
-    final dRef = await reportCollection.collection("Reports").add(_report.toMap());
-    final dSnap = await reportCollection.collection('Patient')
-      .where('pMail', isEqualTo: _patientEmailController.text)
-      .get();
-    final docRef = dSnap.docs.first.reference;
-    await docRef.update({'reports': FieldValue.arrayUnion([dRef])});
-    return _report;
-  }
-
-  Future<void> createPDF(String finalReport) async {
-  try {
-    final pdf = pw.Document();
-
-    // Add a page to the PDF
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Column(
-              children: [
-                // Add a title to the report
-                pw.Text(
-                  'Medical Report',
-                  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
-                ),
-                pw.SizedBox(height: 20),
-                // Add the report content
-                pw.Text(finalReport),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-
-    // Get the temporary directory
-    final output = await getTemporaryDirectory();
-    // Create the PDF file
-    final file = File("${output.path}/example.pdf");
-    // Write the PDF content to the file
-    await file.writeAsBytes(await pdf.save());
-
-    print('PDF saved to: ${file.path}');
-
-    // Open the PDF file
-    await OpenFile.open(file.path);
-  } catch (e) {
-    print(e.toString());
-    showSnackBar(context, e.toString());
-  }
-}
-
-
-  Future<bool> _requestPermission(Permission permission) async {
-    if (await permission.isGranted) {
-      return true;
-    } else {
-      final result = await permission.request();
-      return result == PermissionStatus.granted;
-
     }
   }
 
@@ -282,7 +189,6 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
                 "Enter patient email:",
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
-
               Container(
                 padding: EdgeInsets.all(10),
                 margin: EdgeInsets.all(10),
@@ -319,7 +225,6 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
                   foregroundColor: Colors.white,
                 ),
               ),
-
             ],
           ),
         ),
