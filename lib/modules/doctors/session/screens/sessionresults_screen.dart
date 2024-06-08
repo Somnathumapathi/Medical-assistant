@@ -1,35 +1,51 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:medical_assistant/commons/constants.dart';
 import 'package:medical_assistant/commons/utils.dart';
-import 'package:medical_assistant/models/medication.dart';
 import 'package:medical_assistant/models/report.dart';
-import 'package:medical_assistant/providers/doctor_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:pdf/pdf.dart';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 
 class SessionResultScreen extends ConsumerStatefulWidget {
-  const SessionResultScreen({super.key, required this.report});
+  const SessionResultScreen({Key? key, required this.report}) : super(key: key);
   final Report report;
 
   @override
-  ConsumerState<SessionResultScreen> createState() => _SessionResultScreenState();
+  ConsumerState<SessionResultScreen> createState() =>
+      _SessionResultScreenState();
+
 }
 
 class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
   late TextEditingController _resultController;
-  final _durationController = TextEditingController();
   final _patientNameController = TextEditingController();
   final _patientEmailController = TextEditingController();
   final reportCollection = FirebaseFirestore.instance;
-  String? result;
+
+  late String result;
+  final flutterTts = FlutterTts();
+  final speech = stt.SpeechToText();
+
+  @override
+  void initState() {
+    super.initState();
+    _generateResultText();
+    _resultController = TextEditingController(text: result);
+  }
+
+  @override
+  void dispose() {
+    _resultController.dispose();
+    _patientNameController.dispose();
+    _patientEmailController.dispose();
+    super.dispose();
+  }
+
 
   @override
   void initState() {
@@ -51,14 +67,20 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
     final medicalDiagnosis = widget.report.medicalDiagnosis ?? 'N/A';
     final description = widget.report.description ?? 'No description available';
     final medications = widget.report.medications?.map((medication) {
-      return '''
+
+          return '''
       Name: ${medication.mName}
       Times: ${medication.mTime.asMap().entries.map((entry) {
-        final index = entry.key;
-        final time = entry.value;
-        final meal = index == 0 ? 'breakfast' : index == 1 ? 'lunch' : 'dinner';
-        return time ? 'Yes during $meal' : 'No during $meal';
-      }).join(', ')}
+            final index = entry.key;
+            final time = entry.value;
+            final meal = index == 0
+                ? 'breakfast'
+                : index == 1
+                    ? 'lunch'
+                    : 'dinner';
+            return time ? 'Yes during $meal' : 'No during $meal';
+          }).join(', ')}
+
       Duration: ${medication.mDuration}
       Instructions: ${medication.mInstructions}
       ''';
@@ -74,6 +96,59 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
     ''';
   }
 
+
+  Future<void> createPDF() async {
+    try {
+      final pdf = pw.Document();
+
+      // Add a page to the PDF
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Column(
+                children: [
+                  // Add a title to the report
+                  pw.Text(
+                    'Medical Report',
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold),
+                  ),
+                  pw.SizedBox(height: 20),
+                  // Add the report content
+                  pw.Text(result),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Get the temporary directory
+      final output = await getTemporaryDirectory();
+      // Create the PDF file
+      final file = File("${output.path}/example.pdf");
+      // Write the PDF content to the file
+      await file.writeAsBytes(await pdf.save());
+
+      print('PDF saved to: ${file.path}');
+
+      // Open the PDF file
+      await OpenFile.open(file.path);
+    } catch (e) {
+      print(e.toString());
+      showSnackBar(context, e.toString());
+    }
+  }
+
+  Future<void> speakResult() async {
+    try {
+      await flutterTts.speak(result);
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Failed to generate PDF'),
+      ));
   Future<Report> _reportGeneration({required String doctorName, required int duration}) async {
     final _report = Report(
       startDate: DateTime.now(),
@@ -145,6 +220,7 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
     } else {
       final result = await permission.request();
       return result == PermissionStatus.granted;
+
     }
   }
 
@@ -206,6 +282,7 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
                 "Enter patient email:",
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
+
               Container(
                 padding: EdgeInsets.all(10),
                 margin: EdgeInsets.all(10),
@@ -219,33 +296,30 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
                     fontSize: 15,
                     fontWeight: FontWeight.w300,
                   ),
-                  decoration: const InputDecoration(hintText: "Enter Patient Email"),
+                  decoration:
+                      const InputDecoration(hintText: "Enter Patient Email"),
                   controller: _patientEmailController,
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () async {
-                  try {
-                    final _dur = int.tryParse(widget.report.medications![0].mDuration.split(' ')[0]) ?? 3;
-                    _generateResultText(); // Ensure the result is generated before creating the PDF
-                    await createPDF(result!); // Use the createPDF function to generate the PDF
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('PDF Generated Successfully!'),
-                    ));
-                  } catch (e) {
-                    print('Error: $e');
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Failed to generate PDF'),
-                    ));
-                  }
-                },
+                onPressed: speakResult,
+                label: const Text('Text-to-Speech'),
+                icon: const Icon(Icons.record_voice_over),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: createPDF,
                 label: const Text('Generate PDF'),
-                icon: const Icon(Icons.edit_document),
+                icon: const Icon(Icons.picture_as_pdf),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
               ),
+
             ],
           ),
         ),
