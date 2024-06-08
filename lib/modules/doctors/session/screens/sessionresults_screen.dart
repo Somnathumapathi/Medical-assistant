@@ -11,6 +11,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 
+import '../../../../commons/constants.dart';
+import '../../../../providers/doctor_provider.dart';
+
 class SessionResultScreen extends ConsumerStatefulWidget {
   const SessionResultScreen({Key? key, required this.report}) : super(key: key);
   final Report report;
@@ -131,6 +134,29 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
     }
   }
 
+  _reportGeneration({required String doctorName, required int duration}) async {
+    final _report = Report(
+      startDate: DateTime.now(),
+      endTime: DateTime.now().add(Duration(days: duration)),
+      patientName: _patientNameController.text,
+      description: widget.report.description,
+      medicalDiagnosis: widget.report.medicalDiagnosis,
+      hospitalName: widget.report.hospitalName,
+      doctorName: doctorName,
+      medications: widget.report.medications,
+    );
+    final dRef = await fireStore.collection("Reports").add(_report.toMap());
+    final dSnap = await fireStore
+        .collection('Patient')
+        .where('pMail', isEqualTo: _patientEmailController.text)
+        .get();
+    final docref = dSnap.docs.first.reference;
+    await docref.update({
+      'reports': FieldValue.arrayUnion([dRef])
+    });
+    return _report;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,7 +243,25 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: createPDF,
+                onPressed: () async {
+                  try {
+                    final _dur = int.tryParse(widget
+                            .report.medications![0].mDuration
+                            .split(' ')[0]) ??
+                        3;
+                    print(_dur);
+                    // print(ref.watch(doctorProvider).doctor!.dname);
+                    debugPrint("reached1");
+                    final finalReport = _reportGeneration(
+                        doctorName: ref.watch(doctorProvider).doctor?.dname ??
+                            'K Murthy',
+                        duration: _dur);
+
+                    createPDF();
+                  } catch (e) {
+                    showSnackBar(context, e.toString());
+                  }
+                },
                 label: const Text('Generate PDF'),
                 icon: const Icon(Icons.picture_as_pdf),
                 style: ElevatedButton.styleFrom(
