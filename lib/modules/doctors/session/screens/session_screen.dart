@@ -147,29 +147,39 @@ class _SessionScreenState extends State<SessionScreen> {
                         )
                       : Column(
                           children: [
-                            Text(
+                            const Text(
                               'Start Session',
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 23,
                                   fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 35,
                             ),
-                            IconButton(
-                                onPressed: () {
-                                  SystemSound.play(SystemSoundType.click);
-                                  setState(() {
-                                    _isMicOn = !_isMicOn;
-                                  });
-                                  _startListening();
-                                },
-                                icon: Icon(
-                                  Icons.mic,
-                                  color: Colors.white,
-                                  size: 50,
-                                )),
+                            Container(
+                                decoration: BoxDecoration(
+                                color: Colors.orange.withOpacity(0.3), // Set the background color here
+                                borderRadius: BorderRadius.circular(100), // Set the radius here
+                              ),
+                              child: SizedBox(
+                                height: 200,
+                                width: 200,
+                                child: IconButton(                                  
+                                    onPressed: () {
+                                      SystemSound.play(SystemSoundType.click);
+                                      setState(() {
+                                        _isMicOn = !_isMicOn;
+                                      });
+                                      _startListening();
+                                    },
+                                    icon: const Icon(
+                                      Icons.mic,
+                                      color: Colors.orange,
+                                      size: 150,
+                                    )),
+                              ),
+                            ),
                           ],
                         )
                 ],

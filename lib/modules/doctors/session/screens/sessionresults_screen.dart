@@ -162,12 +162,15 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
     return Scaffold(
       backgroundColor: Colors.indigo,
       appBar: AppBar(
-        title: Text('Result'),
+        backgroundColor: Colors.transparent,
+        title: Text('Result', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
             children: [
+              // Text('Yapper'),
               Container(
                 padding: EdgeInsets.all(10),
                 margin: EdgeInsets.all(10),
