@@ -80,7 +80,7 @@ class Report {
       endTime: map['endTime'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int)
           : null,
-      hospitalName: 'Jayadeva Hospital',
+      hospitalName: 'Jayadeva',
       doctorName: map['doctorName'] != null ? map['doctorName'] as String : '',
 
       patientName:
