@@ -136,15 +136,15 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
 
   _reportGeneration({required String doctorName, required int duration}) async {
     final _report = Report(
-      startDate: DateTime.now(),
-      endTime: DateTime.now().add(Duration(days: duration)),
-      patientName: _patientNameController.text,
-      description: widget.report.description,
-      medicalDiagnosis: widget.report.medicalDiagnosis,
-      hospitalName: widget.report.hospitalName,
-      doctorName: doctorName,
-      medications: widget.report.medications,
-    );
+        startDate: DateTime.now(),
+        endTime: DateTime.now().add(Duration(days: duration)),
+        patientName: _patientNameController.text,
+        description: widget.report.description,
+        medicalDiagnosis: widget.report.medicalDiagnosis,
+        hospitalName: widget.report.hospitalName,
+        doctorName: doctorName,
+        medications: widget.report.medications,
+        pMail: _patientEmailController.text);
     final dRef = await fireStore.collection("Reports").add(_report.toMap());
     final dSnap = await fireStore
         .collection('Patient')
@@ -253,8 +253,8 @@ class _SessionResultScreenState extends ConsumerState<SessionResultScreen> {
                     // print(ref.watch(doctorProvider).doctor!.dname);
                     debugPrint("reached1");
                     final finalReport = _reportGeneration(
-                        doctorName: ref.watch(doctorProvider).doctor?.dname ??
-                            'K Murthy',
+                        doctorName:
+                            ref.watch(doctorProvider).doctor?.dname ?? 'Rajiv',
                         duration: _dur);
 
                     createPDF();

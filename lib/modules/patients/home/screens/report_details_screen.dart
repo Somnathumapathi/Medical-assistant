@@ -16,27 +16,29 @@ class ReportDetailsScreen extends StatelessWidget {
   final flutterTts = FlutterTts();
   final speech = stt.SpeechToText();
   late String result;
+  bool isTalking = false;
 
   void _generateResultText() {
     final medicalDiagnosis = report.medicalDiagnosis ?? 'N/A';
     final description = report.description ?? 'No description available';
     final medications = report.medications?.map((medication) {
-      return '''
+          return '''
       Name: ${medication.mName}
       Times: ${medication.mTime.asMap().entries.map((entry) {
-        final index = entry.key;
-        final time = entry.value;
-        final meal = index == 0
-            ? 'breakfast'
-            : index == 1
-                ? 'lunch'
-                : 'dinner';
-        return time ? 'Yes during $meal' : 'No during $meal';
-      }).join(', ')}
+            final index = entry.key;
+            final time = entry.value;
+            final meal = index == 0
+                ? 'breakfast'
+                : index == 1
+                    ? 'lunch'
+                    : 'dinner';
+            return time ? 'Yes during $meal' : 'No during $meal';
+          }).join(', ')}
       Duration: ${medication.mDuration}
       Instructions: ${medication.mInstructions}
       ''';
-    }).join('\n\n') ?? 'No medications available';
+        }).join('\n\n') ??
+        'No medications available';
 
     result = '''
     Medical Diagnosis: $medicalDiagnosis
@@ -94,7 +96,11 @@ class ReportDetailsScreen extends StatelessWidget {
 
   Future<void> speakResult(BuildContext context) async {
     try {
+      await flutterTts.setVoice({"name": "en-US-Journey-F", "locale": "en-AU"});
+      final voices = await flutterTts.getVoices;
+
       await flutterTts.speak(result);
+      isTalking = true;
     } catch (e) {
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -136,6 +142,3 @@ class ReportDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-  
-  

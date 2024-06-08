@@ -12,6 +12,7 @@ class Report {
   String? doctorName;
   String? patientName;
   String? description;
+  String? pMail;
   // final List<String> videoLinks;
   String? medicalDiagnosis;
   List<Medication>? medications;
@@ -26,6 +27,7 @@ class Report {
       this.patientName,
       this.description,
       this.medicalDiagnosis,
+      this.pMail,
       // required this.videoLinks,
       this.medications});
 
@@ -40,6 +42,7 @@ class Report {
       'patientName': patientName,
       'description': description,
       // 'videoLinks': videoLinks,
+      'pMail': pMail,
       'medications': medications!.map((x) => x.toMap()).toList(),
     };
   }
@@ -54,6 +57,7 @@ class Report {
       endTime: map['endTime'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['endTime'] as int)
           : null,
+      pMail: map['pMail'] as String?,
       hospitalName: map['hospitalName'] as String?,
       doctorName: map['doctorName'] as String?,
       patientName: map['patientName'] as String?,
@@ -85,6 +89,8 @@ class Report {
 
       patientName:
           map['patientName'] != null ? map['patientName'] as String : '',
+
+      pMail: map['pMail'] != null ? map['pMail'] as String : '',
 
       description: map['disease']['descriptionLayman'] as String,
       medicalDiagnosis: map['disease']['medicalDiagnosis'] as String,

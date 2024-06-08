@@ -74,6 +74,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           final _patient = Patient.fromMap(data);
           await prefs.setString('role', 'Patient');
           ref.read(patientProvider).setPatient(_patient);
+          Navigator.popUntil(context, (route) => false);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => PatientHomeScreen()));
         } else {
@@ -81,6 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           print('rrrrrrrrrrrrrr');
           final _doctor = Doctor.fromMap(data);
           ref.read(doctorProvider).setDoctor(_doctor);
+          Navigator.popUntil(context, (route) => false);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => DoctorHomeScreen()));
         }
