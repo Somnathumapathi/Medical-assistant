@@ -8,8 +8,9 @@ import 'package:medical_assistant/commons/constants.dart';
 import 'package:medical_assistant/modules/auth/screens/login_screen.dart';
 import 'package:medical_assistant/modules/doctors/home/screens/doctor_home_screen.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patient_home_screen.dart';
-import 'package:medical_assistant/secrets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+var API_KEY = 'AIzaSyBbzVI-x9oVNlcqVkDd1td-MrdKQiElbHY';
 
 List<CameraDescription>? cameras;
 void main() async {
@@ -40,7 +41,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _init();
   }
@@ -49,6 +49,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

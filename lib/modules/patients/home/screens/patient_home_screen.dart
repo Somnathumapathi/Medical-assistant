@@ -3,6 +3,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patient_monitoring_screen.dart';
+import 'package:medical_assistant/modules/patients/home/screens/patient_prescription_screen.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patient_profile_screen.dart';
 import 'package:medical_assistant/modules/patients/home/screens/patiet_reports_screen.dart';
 import 'package:medical_assistant/providers/patient_provider.dart';
@@ -62,8 +63,10 @@ class _PatientHomeScreenState extends ConsumerState<PatientHomeScreen> {
         ),
       );
     } else if (_screenIdx == 2) {
-      return const PatientMonitoringScreen();
+      return const PatientPrescriptionScreen();
     } else if (_screenIdx == 3) {
+      return const PatientMonitoringScreen();
+    } else if (_screenIdx == 4) {
       return const PatientReportsScreen();
     }
   }
@@ -99,6 +102,10 @@ class _PatientHomeScreenState extends ConsumerState<PatientHomeScreen> {
           ),
           Icon(
             Icons.home,
+            color: Colors.orangeAccent,
+          ),
+          Icon(
+            Icons.qr_code_scanner,
             color: Colors.orangeAccent,
           ),
           Icon(
