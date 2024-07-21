@@ -63,6 +63,8 @@ dependencies:
 
   tflite: ^1.1.2
   gap: ^3.0.1
+  google_generative_ai: ^0.4.3
+  image_picker: ^1.1.2
   # tflite: ^1.1.2
 
 
